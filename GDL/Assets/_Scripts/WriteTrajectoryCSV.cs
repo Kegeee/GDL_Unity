@@ -32,7 +32,7 @@ public class WriteTrajectoryCSV : MonoBehaviour
 
         int length = output.Length;
 
-        string ligne = new string("");
+        var ligne = "";
 
         for (int index = 0; index < length; index++)
             ligne += Convert.ToString(output[index]) + delimiter;
