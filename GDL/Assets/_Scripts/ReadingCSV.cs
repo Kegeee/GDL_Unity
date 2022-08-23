@@ -22,9 +22,9 @@ public class ReadingCSV : MonoBehaviour
         {
             fileName = "undistorted_gaze_";
         }
-        else if (undistorted == "raw")
+        else if (undistorted == "modified")
         {
-            fileName = "raw_undistort_";
+            fileName = "undistort_with_mtx_modified";
         }
         else
         {
@@ -43,7 +43,7 @@ public class ReadingCSV : MonoBehaviour
 
         int norm_x, norm_y;
 
-        if (undistorted == "raw" || undistorted == "undistorted")
+        if (undistorted == "modified" || undistorted == "undistorted")
         {
             norm_x = 1;
             norm_y = 2;

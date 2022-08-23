@@ -29,7 +29,7 @@ public class GazeVector : MonoBehaviour
     // For the screenshots
     public float screenTime = 46.803f;
 
-    
+
 
     ReadingCSV master;
 
@@ -63,14 +63,14 @@ public class GazeVector : MonoBehaviour
     {
         int timeRow = indexOfTime(timeVector, Time.time - time0, displayedGazeIndex);
         // Direction of the ray in the 2D plan of the cam : that where you want to put eye tracking data
-        Vector3 direction = new Vector3(master.storedCSV[timeRow, 0] , master.storedCSV[timeRow, 1], 0);
-        
+        Vector3 direction = new Vector3(master.storedCSV[timeRow, 0], master.storedCSV[timeRow, 1], 0);
+
         displayedGazeIndex = timeRow;
 
         // Send Ray cast from cam head in the gaze direction
         if (!Physics.Raycast(cam.ViewportPointToRay(direction), out RaycastHit hit))
         {
-            Debug.Log("Raycast failed");
+            //Debug.Log("Raycast failed");
             return;
         }
         if (paintGaze)
@@ -85,7 +85,7 @@ public class GazeVector : MonoBehaviour
                 lastHitPos = hit.point;
             }
             else count++;
-            
+
         }
         //Debug.Log("Variable timeRow : " + timeRow + " X : " + master.storedCSV[timeRow, 0] + " / Y : " + master.storedCSV[timeRow, 1]);
         //Debug.Log(hit.point);
@@ -96,23 +96,21 @@ public class GazeVector : MonoBehaviour
 
         if (!instantiated)
         {
-            Debug.Log("plop");
             sphere = Instantiate(sphere, hit.point, Quaternion.identity);
             instantiated = true;
         }
         else
         {
-            Debug.Log("sphere pos : " + sphere.transform.position);
             sphere.transform.position = hit.point;
-            sphere.transform.localScale = Vector3.one * Mathf.Sin(2 * Mathf.PI/180f) * Vector3.Distance(gameObject.transform.position, hit.point);
+            sphere.transform.localScale = Vector3.one * Mathf.Sin(2 * Mathf.PI / 180f) * Vector3.Distance(gameObject.transform.position, hit.point);
         }
-        
+
     }
     /*
      * This function returns the index of the next pupil gaze to display.
      * It uses the timestamps fetched from the master (ReadingCSV), and returns the index 
      * of the next time value between the time right now and the next measured time by PL.
-     * Right now, it uses O.04s for frames, witch means 25Hz.
+     * Right now, it uses O.04s for PL frames, witch means 25Hz.
      */
     private int indexOfTime(float[] timeVector, float time, int lastDisplayedRow)
     {
@@ -123,7 +121,7 @@ public class GazeVector : MonoBehaviour
         Debug.Log("timeVector[lastDisplayed] " + timeVector[lastDisplayedRow]);
         */
         int maxIndex = timeVector.Length;
-        for (int j = lastDisplayedRow; j<maxIndex; j++)
+        for (int j = lastDisplayedRow; j < maxIndex; j++)
         {
             if ((timeVector[j] > time) && (timeVector[j] < time + 0.04)) return j;
         }
@@ -132,7 +130,6 @@ public class GazeVector : MonoBehaviour
         Debug.Log("Big problem, see indexOfTime in GazeVector.cs");
         return -1;
     }
-
     private void DrawGazeOnEnvironment(RaycastHit hit, float distance)
     {
         // Instantiate gaze decal prefab (red dot) 
@@ -145,7 +142,6 @@ public class GazeVector : MonoBehaviour
         // Set red dot size according to distance between new instantied prefab and last instanciated prefab so (saccade = small dots) and (focus = big dots)
         decal.transform.localScale = new Vector3(Mathf.Max(Mathf.Min(1 / (50 * distance), 0.4f), 0.05f),
             Mathf.Max(Mathf.Min(1 / (50 * distance), 0.4f), 0.05f),    // Size of dot [0.05, 0.4], 0.05 : huge saccade, 0.4 : staring, focusing
-            Mathf.Max(Mathf.Min(1 / (50 * distance), 0.4f), 0.05f)); 
-        
+            Mathf.Max(Mathf.Min(1 / (50 * distance), 0.4f), 0.05f));
     }
 }

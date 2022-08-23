@@ -15,9 +15,9 @@ public class SetProjectionMatrix : MonoBehaviour
         cam = GetComponent<Camera>();
 
         float i00 = 621.4731016831646f;
-        float i02 = 1193.9113626217502f;
+        float i02 = 964.83022727f;
         float i11 = 606.0916115661914f;
-        float i12 = 519.5085285404007f;
+        float i12 = 547.77047973f;
 
         float fx = i00;
         float fy = i11;
