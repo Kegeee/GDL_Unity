@@ -1,3 +1,9 @@
+/*
+ * The sole purpose of this script is to write in a txt file (that should be read as CSV) the trajectory of the walking animation.
+ * May never be of use again but who knows ? 
+ * Just attach it to any GameObject, the script will save in a txt file its trajectory.
+ */
+
 using System;
 using System.IO;
 using System.Text;

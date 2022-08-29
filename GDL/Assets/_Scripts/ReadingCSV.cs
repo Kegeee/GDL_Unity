@@ -47,6 +47,7 @@ public class ReadingCSV : MonoBehaviour
         {
             norm_x = 1;
             norm_y = 2;
+            if(undistorted == "modified") storedCSV = new float[lines.Length - 1, 4];
         }
         else
         {
@@ -61,6 +62,10 @@ public class ReadingCSV : MonoBehaviour
             storedCSV[i - 1, 1] = float.Parse(lineData[norm_y].Substring(0, Math.Min(4, lineData[norm_y].Length)), (CultureInfo)CultureInfo.InvariantCulture);
             storedCSV[i - 1, 2] = float.Parse(lineData[0], (CultureInfo)CultureInfo.InvariantCulture);
 
+            // To get the worldFrame in the moddified matrix data.
+            if (undistorted == "modified") storedCSV[i - 1, 3] = float.Parse(lineData[3], (CultureInfo)CultureInfo.InvariantCulture);
+
+            // To delete the offset from the first timestamp.
             storedCSV[i - 1, 2] = storedCSV[i-1,2] - firstTimeStamp;
 
             // Used to display the  whole data in the console.
