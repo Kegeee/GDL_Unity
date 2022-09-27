@@ -10,7 +10,6 @@ public class SyncTimeCalibration : MonoBehaviour
     public string animationName;
     private Animator xsensData;
     private bool hasBeenLaunched = false;
-    private bool calibrationHasBegun = false;
     void Start()
     {
         GameObject Remy = GameObject.Find("Remy");
@@ -28,7 +27,6 @@ public class SyncTimeCalibration : MonoBehaviour
         {
             xsensData.speed = 0;
             GameObject.Find("Head cam").GetComponent<GazeCalibration>().enabled = true;
-            calibrationHasBegun = true;
         }
     }
 }

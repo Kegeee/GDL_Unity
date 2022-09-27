@@ -8,6 +8,8 @@ public class SyncTime : MonoBehaviour
 {
     public float startDelay = 7.662f;
     public string animationName;
+
+    private GameObject Remy;
     private Animator xsensData;
     private bool hasBeenLaunched = false;
     private bool videoPlaying = false;
@@ -15,7 +17,7 @@ public class SyncTime : MonoBehaviour
     private TextMeshProUGUI videoFrame;
     void Start()
     {
-        GameObject Remy = GameObject.Find("Remy");
+        Remy = GameObject.Find("Remy");
         xsensData = Remy.GetComponent<Animator>();
         vp = GameObject.Find("World Pupil").GetComponent<UnityEngine.Video.VideoPlayer>();
         vp.Prepare();

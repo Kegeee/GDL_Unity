@@ -43325,9 +43325,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f9fbfdf5cb6bbf47bcba246147a3350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startDelay: 3.799
-  targetTime: 3.868
-  animationName: TestFinalXsens-005
+  startDelay: 4.911
+  targetTime: 10.295629
+  animationName: TestFinalXsens-002
 --- !u!114 &1398266984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44187,7 +44187,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f54b09538f385b84f9ddbd324aa1ac7c,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6.5116
+      value: 3.282817
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f54b09538f385b84f9ddbd324aa1ac7c,
         type: 3}
@@ -44197,12 +44197,12 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f54b09538f385b84f9ddbd324aa1ac7c,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.58
+      value: 1.848821
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f54b09538f385b84f9ddbd324aa1ac7c,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.81293315
+      value: 0.7519492
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f54b09538f385b84f9ddbd324aa1ac7c,
         type: 3}
@@ -44212,7 +44212,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f54b09538f385b84f9ddbd324aa1ac7c,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.5823571
+      value: -0.6592211
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f54b09538f385b84f9ddbd324aa1ac7c,
         type: 3}
@@ -44227,7 +44227,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: f54b09538f385b84f9ddbd324aa1ac7c,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -71.233
+      value: -82.481
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: f54b09538f385b84f9ddbd324aa1ac7c,
         type: 3}
@@ -44282,7 +44282,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh194824
+  m_Name: pb_Mesh41412
   serializedVersion: 11
   m_SubMeshes:
   - serializedVersion: 2
@@ -44662,8 +44662,8 @@ MonoBehaviour:
   precision: 0.01
   angleCalibration: 1
   gazeToTarget:
-  - 0.5098541
-  - 0.6429816
+  - 0.49669957
+  - 0.61517465
 --- !u!1 &1982479730
 GameObject:
   m_ObjectHideFlags: 0

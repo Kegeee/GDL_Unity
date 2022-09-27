@@ -10,7 +10,7 @@ public class GazeVector : MonoBehaviour
 {
     // Setup variables
     private Camera cam;
-    private ReadingCSV master;
+    private VisualisationManager master;
 
     // For painting gaze on wall
     public GameObject decalPrefab;
@@ -34,7 +34,7 @@ public class GazeVector : MonoBehaviour
     public bool saveResults = true;
     public float timeToSave = 150f;    
     public String filePath;
-    public int trial = 2;
+    public string trial = "2";
     private StringBuilder sb;
     private bool resultSaved = false;
     private int nbOfLines;
@@ -46,13 +46,13 @@ public class GazeVector : MonoBehaviour
         // Getting the camera component
         cam = gameObject.GetComponent<Camera>();
         // Fetching the data loaded in the master object.
-        master = gameObject.GetComponentInParent(typeof(ReadingCSV)) as ReadingCSV;
-        timeVector = new float[master.storedCSV.GetLength(0)]; // We take the number of rows in storedCSV.
-        worldFrame = new int[master.storedCSV.GetLength(0)];
-        for (int j = 0; j < master.storedCSV.GetLength(0); j++)
+        master = gameObject.GetComponentInParent(typeof(VisualisationManager)) as VisualisationManager;
+        timeVector = new float[master.ChosenTrial.StoredCSV.GetLength(0)]; // We take the number of rows in storedCSV.
+        worldFrame = new int[master.ChosenTrial.StoredCSV.GetLength(0)];
+        for (int j = 0; j < master.ChosenTrial.StoredCSV.GetLength(0); j++)
         {
-            timeVector[j] = master.storedCSV[j, 2];
-            worldFrame[j] = Convert.ToInt16(master.storedCSV[j,3]);
+            timeVector[j] = master.ChosenTrial.StoredCSV[j, 2];
+            worldFrame[j] = Convert.ToInt16(master.ChosenTrial.StoredCSV[j,3]);
         }
 
         // initialise variables
@@ -91,7 +91,7 @@ public class GazeVector : MonoBehaviour
     {
         int timeRow = indexOfTime(timeVector, Time.time - time0, displayedGazeIndex);
         // Direction of the ray in the 2D plan of the cam : that where you want to put eye tracking data
-        Vector3 direction = new Vector3(master.storedCSV[timeRow, 0], master.storedCSV[timeRow, 1], 0);
+        Vector3 direction = new Vector3(master.ChosenTrial.StoredCSV[timeRow, 0], master.ChosenTrial.StoredCSV[timeRow, 1], 0);
 
         displayedGazeIndex = timeRow;
 
@@ -178,7 +178,7 @@ public class GazeVector : MonoBehaviour
             // If we don't find any data after 0.04s, we notify the user with valuable info. Then we stick to the last known time.
             else if (timeVector[j] > time + 0.04)
             {
-                Debug.Log($"Missing data after row n°{lastDisplayedRow} / at time : {Time.time}");
+                Debug.Log($"Missing data after row n°{lastDisplayedRow} / at time : {Time.time - time0}");
                 return lastDisplayedRow;
             }
             
