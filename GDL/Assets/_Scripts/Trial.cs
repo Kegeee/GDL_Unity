@@ -13,22 +13,35 @@ public class Trial
     private string trialFile; // The file name of the csv.
     private string animationFile; // The file of the animation in fbx format.
     private Vector3 rotationOffset; // result of rotation calibration.
-    private Vector3 cameraOffset; // result of camera rotation calibration
+    private Vector3 cameraOffset; // result of camera rotation calibration.
     private float syncTime; // Given time to wait for synchronisation.
+    private float participantSize; // Given size of the participant.
+    private float targetTime;
     // The folowing boolean are used to make sure calibration is only done once.
     private bool rotationDone = false;
     private bool syncTimeDone = false;
     private bool cameraDone = false;
+    private bool sizeDone = false;
+    private bool targetDone = false;
 
     // ===========================================================
     //  Getter and setter. 
     // ===========================================================
 
     // ReadOnly
-    public int TrialId 
+    public float[,] StoredCSV
     {
-        get { return trialId; } 
-  
+        get { return storedCSV; }
+    }
+    public int TrialId
+    {
+        get { return trialId; }
+
+    }
+    public bool SizeDone
+    {
+        get { return sizeDone; }
+
     }
     public bool RotationDone
     {
@@ -50,7 +63,11 @@ public class Trial
     {
         get { return animationFile; }
     }
-    // You can only set the rotation offset once, at calibration.
+    public bool TargetDone
+    {
+        get { return targetDone; }
+    }
+    // Things you can only setup once.
     public Vector3 RotationOffset
     {
         set
@@ -69,7 +86,6 @@ public class Trial
         }
         get { return rotationOffset; }
     }
-    // You can only set the sync time once.
     public float SyncTime
     {
         set
@@ -87,7 +103,6 @@ public class Trial
         }
         get { return syncTime; }
     }
-    // Youcan only set the camera angle once.
     public Vector3 CameraOffset
     {
         set
@@ -105,11 +120,42 @@ public class Trial
         }
         get { return cameraOffset; }
     }
-    // ReadOnly
-    public float[,] StoredCSV
+    public float ParticipantSize
     {
-        get { return storedCSV; }
+        set
+        {
+            if (sizeDone)
+            {
+                Debug.Log("Participant size has already been calibrated.");
+                return;
+            }
+            else
+            {
+                participantSize = value;
+                sizeDone = true;
+            }
+        }
+        get { return participantSize; }
     }
+    public float TargetTime
+    {
+        set
+        {
+            if (targetDone)
+            {
+                Debug.Log("Target time has already been set.");
+                return;
+            }
+            else
+            {
+                targetTime = value;
+                targetDone = true;
+            }
+        }
+        get { return targetTime; }
+    }
+
+
 
     // ======================================================================
     // Constructeur de la classe
@@ -122,9 +168,11 @@ public class Trial
         rotationOffset = Vector3.zero;
         cameraOffset = Vector3.zero;
         syncTime = 0;
+        participantSize = 0;
         rotationDone = false;
         cameraDone = false;
         syncTimeDone = false;
+        sizeDone = false;
     }
 
     // ======================================================================

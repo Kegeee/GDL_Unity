@@ -5,61 +5,61 @@ using UnityEngine.UI;
 using TMPro;
 
 
-public class CameraIFManager : MonoBehaviour
+public class CameraIFManager : InputFieldSkeleton
 {
-    private CanvasController controller;
-    private CanvasManager canvasManager;
-    private TMP_InputField thisIF;
-    private bool displayIF = true;
-    private Trial selectedTrial;
-    private TMP_Text thisText;
-    private Button validationButton;
-
+    // To know which axis this script is suposed to handle. Has to be set in the editor though.
     public InputAxis InputAxis;
+
+    private Button validationButton;
+    private CanvasController controller;
+
 
     // Using start and not awake to make sure the event onClick of the button has already been subscribed by 
     // the button itself.
+    protected override void Awake()
+    {
+    }
     void Start()
     {
         controller = GetComponentInParent<CanvasController>();
         canvasManager = GetComponentInParent<CanvasManager>();
-        thisIF = GetComponent<TMP_InputField>();
+        thisInputField = GetComponent<TMP_InputField>();
         thisText = GetComponentInChildren<TMP_Text>();
         canvasManager.OnTrialSelected += OnTrialUpdate;
         validationButton = transform.parent.parent.GetComponentInChildren<Button>();
 
         validationButton.onClick.AddListener(OnValidation);
     }
-    private void OnTrialUpdate(Trial trial)
+    // Turning off update on this IF because it shoud not wait for a key to enter at runtime as the validation button is here for that.
+    override protected void Update()
     {
-        selectedTrial = trial;
-        displayIF = !selectedTrial.CameraDone;
-        if (displayIF)
-        {
-            thisIF.readOnly = false;
-            thisIF.text = "0";
-            thisText.color = Color.black;
-        }
-        else
-        {
-            thisIF.text = "";
-            thisIF.readOnly = true;
-            setTextToTrial();
-            thisText.color = Color.green;
-        }
     }
     private void OnValidation()
     {
-        thisIF.text = "";
-        thisIF.readOnly = true;
-        setTextToTrial();
-        thisText.color = Color.green;
+        if (TrialDone())
+        {
+            thisInputField.text = "";
+            thisInputField.readOnly = true;
+            thisText.SetText(TrialText());
+            thisText.color = Color.green;
+        }
     }
     // This function simply set the text to be the one needed depending on the axis and the trial.
-    private void setTextToTrial()
+    override protected string TrialText()
     {
-        if (InputAxis == InputAxis.X) thisText.SetText(System.Convert.ToString(selectedTrial.CameraOffset.x));
-        if (InputAxis == InputAxis.Y) thisText.SetText(System.Convert.ToString(selectedTrial.CameraOffset.y));
-        if (InputAxis == InputAxis.Z) thisText.SetText(System.Convert.ToString(selectedTrial.CameraOffset.z));
+        if (InputAxis == InputAxis.X) return System.Convert.ToString(selectedTrial.CameraOffset.x);
+        if (InputAxis == InputAxis.Y) return System.Convert.ToString(selectedTrial.CameraOffset.y);
+        if (InputAxis == InputAxis.Z) return System.Convert.ToString(selectedTrial.CameraOffset.z);
+        Debug.Log("Should not be possible. See Camera IF manager script.");
+        return "Not possible. See CameraIF manager script.";
+    }
+    protected override bool TrialDone()
+    {
+        return selectedTrial.CameraDone;
+    }
+    // As of now, this method is not needed.
+    protected override void SetTrial()
+    {
+        throw new System.NotImplementedException();
     }
 }

@@ -32,7 +32,6 @@ public class ValidateCameraButton : MonoBehaviour
     }
     private void OnValidateButton()
     {
-        Debug.Log("cam button called.");
         try
         {
             float x = (float)Convert.ToDouble(inputFields[0].text);

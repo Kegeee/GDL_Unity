@@ -89,7 +89,7 @@ public class GazeVector : MonoBehaviour
     }
     void FixedUpdate()
     {
-        int timeRow = indexOfTime(timeVector, Time.time - time0, displayedGazeIndex);
+        int timeRow = Time.time - time0 >= 0 ? indexOfTime(timeVector, Time.time - time0, displayedGazeIndex) : 0;
         // Direction of the ray in the 2D plan of the cam : that where you want to put eye tracking data
         Vector3 direction = new Vector3(master.ChosenTrial.StoredCSV[timeRow, 0], master.ChosenTrial.StoredCSV[timeRow, 1], 0);
 

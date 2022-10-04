@@ -6,9 +6,8 @@ using TMPro;
 public class GazeCalibration : MonoBehaviour
 {
     // Set up variables
-    public Camera cam; // To get the cam component.
-    public float precision = 0.01f; // To set up the precision of the calibration.
-    public bool angleCalibration = true;
+    private Camera cam; // To get the cam component.
+    private float precision = 0.01f; // To set up the precision of the calibration.
     private LineRenderer lr; // For debug purposes, LineRenderer is used to display the current RayCast.
     private bool isDone = false; // To setup the cartesian error between the raycast hit and the target.
     private float previousError;
@@ -27,8 +26,11 @@ public class GazeCalibration : MonoBehaviour
     // calibration result :
     private static Vector3 rotationResult = Vector3.zero;
 
-    private void Start()
+    private void Awake()
     {
+        // Get camera component.
+        cam = GetComponent<Camera>();
+
         // set up the line renderer width and color.
         lr = GetComponent<LineRenderer>();
 
@@ -73,53 +75,25 @@ public class GazeCalibration : MonoBehaviour
         if (right)
         {
             Debug.Log("Direction : right" + " / erreur : " + previousError);
-            if (angleCalibration)
-            {
-                turnCamera(ref right, hit.point, targetTransform.position, ref previousError, 0, precision, angleCalibration);
-            }
-            else
-            {
-                turnCamera(ref right, hit.point, targetTransform.position, ref previousError, precision, 0, angleCalibration);
-            }
+            turnCamera(ref right, hit.point, targetTransform.position, ref previousError, 0, precision);
         }
         // Ensuite on regarde si il ne faut pas tourner la caméra à gauche.
         else if (left)
         {
             Debug.Log("Direction : left" + " / erreur : " + previousError);
-            if (angleCalibration)
-            {
-                turnCamera(ref left, hit.point, targetTransform.position, ref previousError, 0, -precision, angleCalibration);
-            }
-            else
-            {
-                turnCamera(ref left, hit.point, targetTransform.position, ref previousError, -precision, 0, angleCalibration);
-            }
+            turnCamera(ref left, hit.point, targetTransform.position, ref previousError, 0, -precision);
         }
         // On passe à haut/bas.
         else if (up)
         {
             Debug.Log("Direction : up" + " / erreur : " + previousError);
-            if (angleCalibration)
-            {
-                turnCamera(ref up, hit.point, targetTransform.position, ref previousError, -precision, 0, angleCalibration);
-            }
-            else
-            {
-                turnCamera(ref up, hit.point, targetTransform.position, ref previousError, 0, -precision, angleCalibration);
-            }
+            turnCamera(ref up, hit.point, targetTransform.position, ref previousError, -precision, 0);
         }
         // On essaie vers le bas.
         else if (down)
         {
             Debug.Log("Direction : down" + " / erreur : " + previousError);
-            if (angleCalibration)
-            {
-                turnCamera(ref down, hit.point, targetTransform.position, ref previousError, precision, 0, angleCalibration);
-            }
-            else
-            {
-                turnCamera(ref down, hit.point, targetTransform.position, ref previousError, 0, precision, angleCalibration);
-            }
+            turnCamera(ref down, hit.point, targetTransform.position, ref previousError, precision, 0);
         }
 
         // Start point
@@ -146,7 +120,7 @@ public class GazeCalibration : MonoBehaviour
      * 
      * Finally, turnCamera increments rotationResult.
      */
-    private void turnCamera(ref bool direction, Vector3 point, Vector3 target,ref float previousError, float xRot, float yRot, bool angleCalibration)
+    private void turnCamera(ref bool direction, Vector3 point, Vector3 target,ref float previousError, float xRot, float yRot)
     {
         // Si l'erreur précédente est plus grande que l'erreur actuelle, on continue de tourner dans la même direction.
         if (previousError >= Vector3.Distance(point, target))
@@ -156,8 +130,7 @@ public class GazeCalibration : MonoBehaviour
 
             // On tourne la caméra.
             Vector3 rotation = new Vector3( xRot, yRot, 0);
-            if(angleCalibration) cam.transform.Rotate(rotation);
-            else cam.transform.Translate(rotation);
+            cam.transform.Rotate(rotation);
             // On incrémente rotationResult
             rotationResult += rotation;
         }
@@ -166,8 +139,7 @@ public class GazeCalibration : MonoBehaviour
         {
             //Vector3 rotation = new Vector3(-xRot, -yRot, 0);
             Vector3 rotation = new Vector3( -xRot, -yRot, 0);
-            if(angleCalibration) cam.transform.Rotate(rotation);
-            else cam.transform.Translate(rotation);
+            cam.transform.Rotate(rotation);
             direction = false;
             // On incrémente rotationResult
             rotationResult += rotation;

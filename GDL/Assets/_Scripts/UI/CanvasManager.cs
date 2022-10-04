@@ -7,12 +7,21 @@ using TMPro;
 using System.IO;
 using System;
 
+// Define public enumerators that will be useful for canvas and UI management.
+public enum InputAxis
+{
+    X,
+    Y,
+    Z
+}
 
 public enum CanvasType
 {
     TrialSelection,
     TrialMenu,
-    Visualization
+    Visualization,
+    CameraCalibration,
+    CamCalibrationPopUp
 }
 
 public class CanvasManager : MonoBehaviour
@@ -25,6 +34,7 @@ public class CanvasManager : MonoBehaviour
     public static CanvasManager instance;
     private List<CanvasController> canvasControllerList;
     private CanvasController lastActiveCanvas;
+    private CanvasController currentPopUp;
 
     // Getter and setter
     public CanvasManager Instance
@@ -67,7 +77,6 @@ public class CanvasManager : MonoBehaviour
     public event OnTrialSelectedDelegate OnTrialSelected;
     public delegate void OnTrialSelectedDelegate(Trial trial);
 
-    // Start is called before the first frame update
     void Awake()
     {
         // To make sure the menu manager is a singleton.
@@ -77,8 +86,14 @@ public class CanvasManager : MonoBehaviour
             return;
         }
         instance = this;
-        // To make sure the menu data is persistent.
+        // To make sure the menu data is persistent between scenes.
         DontDestroyOnLoad(gameObject);
+
+        // Make sure all children - meaning all canvas - are turned on.
+        for(int i = 0; i < transform.childCount; i++)
+        {
+            transform.GetChild(i).gameObject.SetActive(true);
+        }
 
         // Get all canvas controller.
         canvasControllerList = GetComponentsInChildren<CanvasController>().ToList();
@@ -88,7 +103,7 @@ public class CanvasManager : MonoBehaviour
 
         StartCoroutine(InitialiseMenu());
     }
-
+    // This function is used to display a new canvas while turning off the previous one. 
     public void SwitchCanvas(CanvasType type)
     {
         if(lastActiveCanvas != null)
@@ -143,7 +158,7 @@ public class CanvasManager : MonoBehaviour
     }
     // This coroutine initialise the menu by checking that every objects in the UI is correctly instantiated
     // before selecting the right trial and the rigth canvas.
-    IEnumerator InitialiseMenu()
+    private IEnumerator InitialiseMenu()
     {
         while(!checkIfEveryObjectIsInstantiated(canvasControllerList)) yield return null;
         // When all objects are properly initialised, we select the correct canvas to display and the correct trial.
@@ -153,6 +168,33 @@ public class CanvasManager : MonoBehaviour
             TurnOffAllCanvas();
             SwitchCanvas(CanvasType.TrialSelection);
         }
+        Debug.Log("Menu initialised.");
         StopCoroutine(InitialiseMenu()); // Therefore the menu is initialised and we don't need the coroutine anymore.
+    }
+    // This function is used to display a pop up - meaning display a canvas without turning off the previous one.
+    public void DisplayPopUp(CanvasType type)
+    {
+        if (!type.ToString().EndsWith("PopUp"))
+        {
+            Debug.LogWarning("Desired Canvas not a pop up!");
+            return;
+        }
+
+        CanvasController desiredCanvas = canvasControllerList.Find(x => x.canvasType == type);
+        if (desiredCanvas != null)
+        {
+            desiredCanvas.gameObject.SetActive(true);
+            currentPopUp = desiredCanvas;
+        }
+        else
+        {
+            Debug.LogWarning("The desired pop up not found!");
+        }
+    }
+    public void turnOffPopUp()
+    {
+        if (currentPopUp != null) currentPopUp.gameObject.SetActive(false);
+        else Debug.LogWarning("No actibe pop up !");
+        currentPopUp = null;
     }
 }

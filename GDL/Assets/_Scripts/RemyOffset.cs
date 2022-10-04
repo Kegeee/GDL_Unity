@@ -19,6 +19,7 @@ public class RemyOffset : MonoBehaviour
     private AnimationEvent launchOffset; // The event that launches the coroutine.
     private AnimationClip clip; // The desired animation clip.
     private Trial trial; // The trial from which data is fetched.
+    private I3DVisualization manager;
 
     private void Awake()
     {
@@ -34,7 +35,10 @@ public class RemyOffset : MonoBehaviour
     {
         // The start function is used to make sure the object can communicate with the manager and all data is already fetched
         // in the manager.
-        trial = GetComponentInParent<VisualisationManager>().ChosenTrial; // Fetch the trial from the manager.
+        if (GetComponentInParent<VisualisationManager>() != null) manager = GetComponentInParent<VisualisationManager>();
+        else if (GetComponentInParent<CalibrationManager>() != null) manager = GetComponent<CalibrationManager>();
+
+        trial = manager.ChosenTrial; // Fetch the trial from the manager.
         // Fetch the correct animation from the animator.
         foreach ( AnimationClip animation in animator.runtimeAnimatorController.animationClips)
         {
@@ -46,7 +50,7 @@ public class RemyOffset : MonoBehaviour
         launchOffset.time = 1 / clip.frameRate; // Set the event to trigger at the first frame
                                                 // - meaning the one after the 0 frame.
         clip.events = System.Array.Empty<AnimationEvent>(); // Just making sure it is empty even though it should be.
-        clip.AddEvent(launchOffset); // Add the previously made event to the clip.
+        clip.AddEvent(launchOffset); // Add the previously made event to the clip.       
     }
     // This function is called by the Animation Event.
     // It is only used to launch the coroutine that actually offsets the avatar.
@@ -64,7 +68,7 @@ public class RemyOffset : MonoBehaviour
         AnimatorClipInfo[] clipInfo = animator.GetCurrentAnimatorClipInfo(0);
         int currentFrame = (int)(animator.GetCurrentAnimatorStateInfo(0).normalizedTime 
             * (clipInfo[0].clip.length * clipInfo[0].clip.frameRate));
-        Debug.Log($"Offset called at animation frame n°{currentFrame}");
+        Debug.Log($"Offset called at animation \"{clip.name}\" frame n°{currentFrame}");
         yield return 0; // Wait one frame.
         animator.applyRootMotion = true; // Allow the animator to apply root motion, thus moving the avatar however he wants.
         StopCoroutine(OffsetRemy()); // Stop the coroutine.

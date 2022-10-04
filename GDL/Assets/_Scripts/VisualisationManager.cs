@@ -12,7 +12,7 @@ using TMPro;
 using System;
 using System.Globalization;
 
-public class VisualisationManager : MonoBehaviour
+public class VisualisationManager : MonoBehaviour, I3DVisualization
 {
     // Variables
     private Trial trial;
@@ -30,7 +30,6 @@ public class VisualisationManager : MonoBehaviour
     private bool hasBeenLaunched = false;
     private bool videoPlaying = false;
     private VideoPlayer vp;
-    private TextMeshProUGUI videoFrame;
     void Awake()
     {
         // Instantiate all needed data from the Trial given by the CanvasManager.
@@ -43,8 +42,6 @@ public class VisualisationManager : MonoBehaviour
         vp = GameObject.Find("World Pupil").GetComponent<VideoPlayer>();
         vp.Prepare();
 
-        videoFrame = GameObject.Find("VideoFrame").GetComponent<TextMeshProUGUI>();
-
         GetComponentInChildren<GazeVector>().enabled = true;
 
         timeO = Time.time;
@@ -52,15 +49,15 @@ public class VisualisationManager : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (vp.isPrepared)
+        if (vp!=null && vp.isPrepared)
         {
             if (!videoPlaying)
             {
                 vp.Play();
                 videoPlaying = true;
             }
-            videoFrame.SetText($"frame : {vp.frame}");
         }
+
         if ((Time.time - timeO > startDelay) && !hasBeenLaunched && vp.isPrepared)
         {
             vp.time = Time.time - timeO;
