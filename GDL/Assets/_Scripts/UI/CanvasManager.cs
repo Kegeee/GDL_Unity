@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using UnityEngine.SceneManagement;
-using TMPro;
 using System.IO;
 using System;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 // Define public enumerators that will be useful for canvas and UI management.
 public enum InputAxis
@@ -52,7 +52,7 @@ public class CanvasManager : MonoBehaviour
             foreach (Trial trial in trials)
             {
                 if (OnTrialSelected != null && value == trial.TrialId) OnTrialSelected(trial);
-                else if(OnTrialSelected == null) { Debug.LogWarning("No listeners added yet !"); return; }
+                else if (OnTrialSelected == null) { Debug.LogWarning("No listeners added yet !"); return; }
             }
         }
     }
@@ -68,7 +68,7 @@ public class CanvasManager : MonoBehaviour
             {
                 if (selectedTrialId == trial.TrialId) return trial;
             }
-            Debug.LogWarning("Could not get the selected trial.");
+            Debug.LogWarning("Could not get the desired trial.");
             return null;
         }
     }
@@ -126,6 +126,7 @@ public class CanvasManager : MonoBehaviour
     {
         canvasControllerList.ForEach(x => x.gameObject.SetActive(false));
     }
+    // Instantiate all trials from the .csv files in the resources folder, or from the .bin if it exists.
     private List<Trial> GetAllTrials()
     {
         DirectoryInfo d = new DirectoryInfo("Assets/Resources");
@@ -136,7 +137,43 @@ public class CanvasManager : MonoBehaviour
 
         foreach (FileInfo file in Files)
         {
-            tempList.Add(new Trial((int)Char.GetNumericValue(file.Name[file.Name.Length - 5])));
+           /*   If a .bin version of this trial exists, store it in the list instead of the .csv.
+            *    Uses code from all three following links :
+            *    https://learn.microsoft.com/en-us/dotnet/api/system.runtime.serialization.surrogateselector?redirectedfrom=MSDN&view=net-6.0
+            *    https://forum.unity.com/threads/vector3-is-not-marked-serializable.435303/
+            *    https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/serialization/walkthrough-persisting-an-object-in-visual-studio
+            */
+
+            if (File.Exists(file.FullName.Remove(file.FullName.Length-4) + ".bin"))
+            {
+                Stream openFileStream = File.OpenRead(file.FullName.Remove(file.FullName.Length - 4) + ".bin");
+
+                SurrogateSelector selector = new SurrogateSelector();
+                // Inform the surrogate selector which surrogate it should use when encountering a Vector3.
+                selector.AddSurrogate(typeof(Vector3), 
+                    new StreamingContext(StreamingContextStates.All), 
+                    new Vector3SerializationSurrogate());
+
+                BinaryFormatter deserializer = new BinaryFormatter();
+                deserializer.SurrogateSelector = selector;
+
+                try
+                {
+                    Trial trial = (Trial)deserializer.Deserialize(openFileStream);
+                    tempList.Add(trial);
+                }
+                catch(SerializationException e) 
+                { 
+                    tempList.Add(new Trial((int)Char.GetNumericValue(file.Name[file.Name.Length - 5])));
+                    Debug.LogWarning("Could not deserialize : " + e 
+                        + "\nTrial has been loaded from its .csv.");
+                }
+                openFileStream.Close();
+            }
+            else
+            {
+                tempList.Add(new Trial((int)Char.GetNumericValue(file.Name[file.Name.Length - 5])));
+            }
         }
         return tempList;
     }
@@ -161,7 +198,6 @@ public class CanvasManager : MonoBehaviour
     private IEnumerator InitialiseMenu()
     {
         while(!checkIfEveryObjectIsInstantiated(canvasControllerList)) yield return null;
-        // When all objects are properly initialised, we select the correct canvas to display and the correct trial.
         if (checkIfEveryObjectIsInstantiated(canvasControllerList))
         {
             SetSelectedTrialId = 2;
@@ -169,7 +205,7 @@ public class CanvasManager : MonoBehaviour
             SwitchCanvas(CanvasType.TrialSelection);
         }
         Debug.Log("Menu initialised.");
-        StopCoroutine(InitialiseMenu()); // Therefore the menu is initialised and we don't need the coroutine anymore.
+        StopCoroutine(InitialiseMenu()); 
     }
     // This function is used to display a pop up - meaning display a canvas without turning off the previous one.
     public void DisplayPopUp(CanvasType type)
@@ -191,10 +227,20 @@ public class CanvasManager : MonoBehaviour
             Debug.LogWarning("The desired pop up not found!");
         }
     }
+    // This function turns off the active pop up if it exists.
     public void turnOffPopUp()
     {
         if (currentPopUp != null) currentPopUp.gameObject.SetActive(false);
-        else Debug.LogWarning("No actibe pop up !");
+        else Debug.LogWarning("No active pop up !");
         currentPopUp = null;
+    }
+    // This function replace a trial in the trials list by a blank trial. The trial is selected by its ID.
+    public void DeleteTrial(int trialIdToDelete)
+    {
+        for(int i = 0; i < trials.Count; i++) if (trials[i].TrialId == trialIdToDelete)
+            {
+                trials[i] = new Trial(trialIdToDelete);
+            }
+        SetSelectedTrialId = trialIdToDelete;
     }
 }

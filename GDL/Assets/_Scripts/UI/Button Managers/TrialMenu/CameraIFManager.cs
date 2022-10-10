@@ -4,15 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-
 public class CameraIFManager : InputFieldSkeleton
 {
     // To know which axis this script is suposed to handle. Has to be set in the editor though.
     public InputAxis InputAxis;
 
     private Button validationButton;
-    private CanvasController controller;
-
 
     // Using start and not awake to make sure the event onClick of the button has already been subscribed by 
     // the button itself.
@@ -21,7 +18,6 @@ public class CameraIFManager : InputFieldSkeleton
     }
     void Start()
     {
-        controller = GetComponentInParent<CanvasController>();
         canvasManager = GetComponentInParent<CanvasManager>();
         thisInputField = GetComponent<TMP_InputField>();
         thisText = GetComponentInChildren<TMP_Text>();
@@ -30,19 +26,18 @@ public class CameraIFManager : InputFieldSkeleton
 
         validationButton.onClick.AddListener(OnValidation);
     }
+    private void OnEnable()
+    {
+        if (selectedTrial != null && TrialDone()) SetValidatedText();
+    }
     // Turning off update on this IF because it shoud not wait for a key to enter at runtime as the validation button is here for that.
     override protected void Update()
     {
     }
+    // When the button is clicked, if setting the trial was successful we have to display the result.
     private void OnValidation()
     {
-        if (TrialDone())
-        {
-            thisInputField.text = "";
-            thisInputField.readOnly = true;
-            thisText.SetText(TrialText());
-            thisText.color = Color.green;
-        }
+        SetValidatedText();
     }
     // This function simply set the text to be the one needed depending on the axis and the trial.
     override protected string TrialText()
@@ -56,6 +51,22 @@ public class CameraIFManager : InputFieldSkeleton
     protected override bool TrialDone()
     {
         return selectedTrial.CameraDone;
+    }
+    protected IEnumerator GetTrialFromManager()
+    {
+        while(CanvasManager.instance.GetTrial == null) yield return null;
+        selectedTrial = CanvasManager.instance.GetTrial;
+        StopCoroutine(GetTrialFromManager());
+    }
+    private void SetValidatedText()
+    {
+        if (TrialDone())
+        {
+            thisInputField.text = "";
+            thisInputField.readOnly = true;
+            thisText.SetText(TrialText());
+            thisText.color = Color.green;
+        }
     }
     // As of now, this method is not needed.
     protected override void SetTrial()

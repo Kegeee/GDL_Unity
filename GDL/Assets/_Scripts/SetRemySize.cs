@@ -9,8 +9,8 @@ public class SetRemySize : MonoBehaviour
 
     void Start()
     {
-        if (GetComponentInParent<VisualisationManager>() != null) manager = GetComponentInParent<VisualisationManager>();
-        else if(GetComponentInParent<CalibrationManager>() != null) manager = GetComponent<CalibrationManager>();
+        // Get the manager of this scene - a manager always needs to inherit from the interface I3DVisualization.
+        manager = GetComponentInParent<I3DVisualization>();
 
         trial = manager.ChosenTrial; // Fetch the trial from the manager.
         // calculate the scale depending on the measured size of Remy when scale == 1.

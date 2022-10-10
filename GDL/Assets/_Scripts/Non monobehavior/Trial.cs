@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Globalization;
 using System;
 
-
+[Serializable()]
 public class Trial
 {
     // Instantiate variables.
@@ -180,7 +180,7 @@ public class Trial
     // ======================================================================
 
     // The following function reads the corresponding csv file of the trial and stores the data
-    // in the storedCSV value of the object.
+    // in the storedCSV field of the object.
     private float[,] ReadCSV(string file)
     {
         // write the path of the data
@@ -215,7 +215,7 @@ public class Trial
             result[i - 1, 2] = result[i - 1, 2] - firstTimeStamp;
 
             // Used to display the  whole data in the console, for debug purposes.
-            //Debug.Log(result[i - 1, 0] + "," + result[i - 1, 1] + "," + result[i - 1, 2]);
+            // Debug.Log(result[i - 1, 0] + "," + result[i - 1, 1] + "," + result[i - 1, 2]);
         }
         return result;
     }

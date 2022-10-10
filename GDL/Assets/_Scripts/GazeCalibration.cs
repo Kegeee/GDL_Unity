@@ -2,9 +2,13 @@
 using System.Collections;
 using System;
 using TMPro;
+using System.Linq;
 
 public class GazeCalibration : MonoBehaviour
 {
+    // Manager.
+    CalibrationManager manager;
+
     // Set up variables
     private Camera cam; // To get the cam component.
     private float precision = 0.01f; // To set up the precision of the calibration.
@@ -12,22 +16,30 @@ public class GazeCalibration : MonoBehaviour
     private bool isDone = false; // To setup the cartesian error between the raycast hit and the target.
     private float previousError;
     private Transform targetTransform; // To get the target position.
-    private TextMeshProUGUI displayedText; // To display the camera angles in world degree.
 
-    // Set up direction variables for the calibration.
+    // Set up direction boolean for the calibration.
     private bool left = true;
     private bool right = true;
     private bool up = true;
     private bool down = true;
 
+    // Undistorted pixels from undistorted_dot.py. Taken from the manager, this should 
     // undistorted pixels from undistorted_dot.py. Has to be set up everytime for calibration.
-    public float[] gazeToTarget = new float[2] { 0.616012648748197f, 0.64134309875092f};
+    private double[] gazeToTarget;
 
     // calibration result :
     private static Vector3 rotationResult = Vector3.zero;
 
+    // Raising event when the calibration is finished.
+    public event OnCalibrationFinishedDelegate OnCalibrationFinished;
+    public delegate void OnCalibrationFinishedDelegate(Vector3 calibrationResult);
+    private bool eventRaised = false; // To raise the event only one frame.
+
     private void Awake()
     {
+        // Get the manager.
+        manager = GetComponentInParent<CalibrationManager>();
+
         // Get camera component.
         cam = GetComponent<Camera>();
 
@@ -46,15 +58,20 @@ public class GazeCalibration : MonoBehaviour
 
         // Get the target transform.
         targetTransform = GameObject.Find("Target").GetComponent<Transform>();
-
-        // To display cam transform.
-        displayedText = GameObject.Find("CamData").GetComponent<TextMeshProUGUI>();
+    }
+    private void Start()
+    {
+        gazeToTarget = GetGazeValue();
+    }
+    private void OnEnable()
+    {
+        rotationResult = Vector3.zero;
     }
     void FixedUpdate()
     {
         // Direction of the ray in the 2D plan of the cam : that where you want to put eye tracking data.
         // On Y axis : 1 - gaze to account for differences in convention between openCV and openGL.
-        Vector3 direction = new Vector3(gazeToTarget[0], gazeToTarget[1], 0); 
+        Vector3 direction = new Vector3((float)gazeToTarget[0], (float)gazeToTarget[1], 0); 
 
         // Send Ray cast from cam head in the gaze direction.
         // If the raycast fails, display it in the console and then stop the function.
@@ -74,25 +91,25 @@ public class GazeCalibration : MonoBehaviour
 
         if (right)
         {
-            Debug.Log("Direction : right" + " / erreur : " + previousError);
+            //Debug.Log("Direction : right" + " / erreur : " + previousError);
             turnCamera(ref right, hit.point, targetTransform.position, ref previousError, 0, precision);
         }
         // Ensuite on regarde si il ne faut pas tourner la caméra à gauche.
         else if (left)
         {
-            Debug.Log("Direction : left" + " / erreur : " + previousError);
+            //Debug.Log("Direction : left" + " / erreur : " + previousError);
             turnCamera(ref left, hit.point, targetTransform.position, ref previousError, 0, -precision);
         }
         // On passe à haut/bas.
         else if (up)
         {
-            Debug.Log("Direction : up" + " / erreur : " + previousError);
+            //Debug.Log("Direction : up" + " / erreur : " + previousError);
             turnCamera(ref up, hit.point, targetTransform.position, ref previousError, -precision, 0);
         }
         // On essaie vers le bas.
         else if (down)
         {
-            Debug.Log("Direction : down" + " / erreur : " + previousError);
+            //Debug.Log("Direction : down" + " / erreur : " + previousError);
             turnCamera(ref down, hit.point, targetTransform.position, ref previousError, precision, 0);
         }
 
@@ -101,8 +118,13 @@ public class GazeCalibration : MonoBehaviour
         // End point 
         lr.SetPosition(1, hit.point);
 
-        // Display 
-        displayedText.SetText(rotationResult.ToString());
+        // If everything is finished, we raise the the finished caliration event.
+        if (!eventRaised && !(up || down || left || right))
+        {
+            if (OnCalibrationFinished != null) OnCalibrationFinished(rotationResult);
+            else { Debug.LogWarning("No listeners added yet !"); }
+            eventRaised = true;
+        }
     }
     /*
      * The function turnCamera takes as argument :
@@ -137,12 +159,37 @@ public class GazeCalibration : MonoBehaviour
         // Sinon on tourne dans la mauvaise direction. Il faut donc corriger la dernière fois qu'on a tourné dans cette direction.
         else
         {
-            //Vector3 rotation = new Vector3(-xRot, -yRot, 0);
             Vector3 rotation = new Vector3( -xRot, -yRot, 0);
             cam.transform.Rotate(rotation);
             direction = false;
             // On incrémente rotationResult
             rotationResult += rotation;
         }
+    }
+    // Get the desired gaze value depending on target time.
+    // Not sure if that's the best way to do it as I always set this value manually.
+    // Very poorly optimized because we are forced to loop through all the data since there seem to be some timestamp artifacts.
+    private double[] GetGazeValue()
+    {
+        // Fetch gaze data.
+        float[,] gazeData = manager.ChosenTrial.StoredCSV;
+
+        // Initialise variables.
+        double[] result = new double[2];
+
+        double[] timeTarget = new double[gazeData.GetLength(0)];
+
+        // Create a vector which stores the difference between the target time and all timestamps possible.
+        for (int i = 0; i< gazeData.GetLength(0); i++)
+        {
+            timeTarget[i] = Math.Abs(gazeData[i, 2] - manager.ChosenTrial.TargetTime);
+        }
+
+        // Get the index of the min value - meaning the index of the timestamp closest to the target time.
+        int index = Array.IndexOf(timeTarget, timeTarget.Min());
+        // Feed the result the desired data and return it.
+        result[0] = gazeData[index, 0]; result[1] = gazeData[index, 1];
+        Debug.Log($"final index : {index} / result : {result[0]} , {result[1]} / time : {gazeData[index, 2]}");
+        return result;
     }
 }

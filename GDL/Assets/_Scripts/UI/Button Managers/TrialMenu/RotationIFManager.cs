@@ -29,19 +29,17 @@ public class RotationIFManager : InputFieldSkeleton
 
         validationButton.onClick.AddListener(OnValidation);
     }
+    private void OnEnable()
+    {
+        if (selectedTrial != null && TrialDone()) SetValidatedText();
+    }
     // Turning off update on this IF. It shoud not wait for a key to enter at runtime as the validation button is here for that.
     protected override void Update()
     {
     }
     private void OnValidation()
     {
-        if (TrialDone())
-        {
-            thisInputField.text = "";
-            thisInputField.readOnly = true;
-            thisText.SetText(TrialText());
-            thisText.color = Color.green;
-        }
+        SetValidatedText();
     }
     // This function simply set the text to be the one needed depending on the axis and the trial.
     override protected string TrialText()
@@ -55,6 +53,16 @@ public class RotationIFManager : InputFieldSkeleton
     protected override bool TrialDone()
     {
         return selectedTrial.RotationDone;
+    }
+    private void SetValidatedText()
+    {
+        if (TrialDone())
+        {
+            thisInputField.text = "";
+            thisInputField.readOnly = true;
+            thisText.SetText(TrialText());
+            thisText.color = Color.green;
+        }
     }
     // As of now, this method is not needed.
     protected override void SetTrial()

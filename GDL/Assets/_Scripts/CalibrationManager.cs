@@ -7,6 +7,7 @@ public class CalibrationManager : MonoBehaviour, I3DVisualization
 {
     private float startDelay;
     private float targetTime;
+    private float time0;
     private string animationName;
     private Animator xsensData;
     private bool hasBeenLaunched = false;
@@ -21,24 +22,26 @@ public class CalibrationManager : MonoBehaviour, I3DVisualization
     {
         xsensData = GetComponentInChildren<Animator>();
         trial = CanvasManager.instance.GetTrial;
+        animationName = trial.AnimationFile;
     }
     void Start()
     {
         startDelay = trial.SyncTime;
         targetTime = trial.TargetTime;
+        time0 = Time.time;
     }
 
     void Update()
     {
-        if((Time.time >= startDelay)&& !hasBeenLaunched)
+        if((Time.time - time0 >= startDelay)&& !hasBeenLaunched)
         {
             xsensData.Play(animationName);
             hasBeenLaunched = true;
         }
-        if(Time.time >= targetTime && !hasCalibrationBegun)
+        if(Time.time - time0 >= targetTime && !hasCalibrationBegun)
         {
             xsensData.speed = 0;
-            GameObject.Find("Head cam").GetComponent<GazeCalibration>().enabled = true;
+            GetComponentInChildren<GazeCalibration>().enabled = true;
             hasCalibrationBegun = true;
         }
     }

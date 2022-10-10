@@ -25,7 +25,6 @@ public class VisualisationManager : MonoBehaviour, I3DVisualization
     private float timeO = 0;
     private float startDelay;
     private string animationName;
-    private GameObject Remy;
     private Animator xsensData;
     private bool hasBeenLaunched = false;
     private bool videoPlaying = false;
@@ -37,9 +36,8 @@ public class VisualisationManager : MonoBehaviour, I3DVisualization
         startDelay = trial.SyncTime;
         animationName = trial.AnimationFile;
 
-        Remy = GameObject.Find("Remy");
-        xsensData = Remy.GetComponent<Animator>();
-        vp = GameObject.Find("World Pupil").GetComponent<VideoPlayer>();
+        xsensData = GetComponentInChildren<Animator>();
+        vp = GetComponentInChildren<VideoPlayer>();
         vp.Prepare();
 
         GetComponentInChildren<GazeVector>().enabled = true;

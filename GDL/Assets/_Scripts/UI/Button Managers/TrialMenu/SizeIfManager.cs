@@ -1,3 +1,6 @@
+/*
+ * Inherits from input field skeleton.
+*/
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

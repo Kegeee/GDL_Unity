@@ -12,7 +12,6 @@ public class DefaultUIManager : MonoBehaviour
     private CanvasController controller;
     void Awake()
     {
-        // Get already instantiated controllers and managers.
         controller = GetComponentInParent<CanvasController>();
 
         try
