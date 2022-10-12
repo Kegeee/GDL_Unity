@@ -5,11 +5,11 @@ using UnityEngine.UI;
 
 public class ReturnButtonManager : MonoBehaviour
 {
-    private CanvasController controller;
-    private CanvasManager canvasManager;
-    private Button thisButton;
+    protected CanvasController controller;
+    protected CanvasManager canvasManager;
+    protected Button thisButton;
     // Start is called before the first frame update
-    void Awake()
+    protected void Awake()
     {
         controller = GetComponentInParent<CanvasController>();
         canvasManager = GetComponentInParent<CanvasManager>();
@@ -18,7 +18,7 @@ public class ReturnButtonManager : MonoBehaviour
 
         controller.allUIs[transform.GetSiblingIndex()] = true;
     }
-    void OnButtonClicked()
+    protected virtual void OnButtonClicked()
     {
         canvasManager.SwitchCanvas(CanvasType.TrialSelection);
     }

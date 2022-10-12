@@ -22,7 +22,9 @@ public class CameraIFManager : InputFieldSkeleton
         thisInputField = GetComponent<TMP_InputField>();
         thisText = GetComponentInChildren<TMP_Text>();
         canvasManager.OnTrialSelected += OnTrialUpdate;
-        validationButton = transform.parent.parent.GetComponentInChildren<Button>();
+        // Fetch all buttons then feeds the right one to the variable validationButton.
+        Button[] buttons = transform.parent.parent.GetComponentsInChildren<Button>();
+        foreach (Button button in buttons) if (button.gameObject.name == "ValidateCamButton") validationButton = button;
 
         validationButton.onClick.AddListener(OnValidation);
     }

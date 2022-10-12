@@ -51,7 +51,6 @@ public class RemyOffset : MonoBehaviour
         launchOffset.time = 2 / clip.frameRate; 
         // Set the event to trigger at the second frame to make up for inconsystencies when triggering it at the first frame.
         // - most likely due to the computer's internal clock but I could be mistaken.
-        clip.events = System.Array.Empty<AnimationEvent>(); 
         clip.AddEvent(launchOffset);        
     }
     // This function is called by the Animation Event.
